@@ -1333,11 +1333,7 @@ void dbd_error2(
 
     while(henv != SQL_NULL_HENV) {
         SQLCHAR sqlstate[SQL_SQLSTATE_SIZE+1];
-        /*
-         *  ODBC spec says ErrorMsg must not be greater than
-         *  SQL_MAX_MESSAGE_LENGTH but we concatenate a little
-         *  on the end later (e.g. sql state) so make room for more.
-         */
+        /* Reserve space for the SQLSTATE suffix added below. */
         SQLCHAR ErrorMsg[SQL_MAX_MESSAGE_LENGTH+512];
         SQLSMALLINT ErrorMsgLen;
         SQLINTEGER NativeError;
@@ -1350,7 +1346,7 @@ void dbd_error2(
               SQL_SUCCEEDED(rc=SQLError(
                                 henv, hdbc, hstmt,
                                 sqlstate, &NativeError,
-                                ErrorMsg, sizeof(ErrorMsg)-1, &ErrorMsgLen))) {
+                                ErrorMsg, SQL_MAX_MESSAGE_LENGTH, &ErrorMsgLen))) {
 
             error_found = 1;
             if (err_rc == DBDODBC_INTERNAL_ERROR) {
@@ -1359,7 +1355,6 @@ void dbd_error2(
                 NativeError = 1;
                 err_rc = SQL_ERROR;
             } else {
-                ErrorMsg[ErrorMsgLen] = '\0';
                 sqlstate[SQL_SQLSTATE_SIZE] = '\0';
             }
             if (DBIc_TRACE(imp_dbh, DBD_TRACING, 0, 3)) {

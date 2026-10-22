@@ -82,6 +82,7 @@ my $ok = eval {
 ok(!$ok, "SQLGetInfo fails");
 @diags = $h->odbc_getdiagrec(1);
 is(scalar(@diags), 3, '   and 3 diag fields returned');
+is($h->odbc_getdiagfield(1, SQL_DIAG_MESSAGE_TEXT), $diags[2], 'message field matches record');
 note(Data::Dumper->Dump([\@diags], [qw(diags)]));
 
 get_fields($h, 1);
@@ -99,6 +100,7 @@ ok(!$ok, "select on non-existant table fails");
 if ($s) {
     @diags = $s->odbc_getdiagrec(1);
     is(scalar(@diags), 3, '   and 3 diag fields returned');
+    is($s->odbc_getdiagfield(1, SQL_DIAG_MESSAGE_TEXT), $diags[2], 'message field matches record');
     note(Data::Dumper->Dump([\@diags], [qw(diags)]));
 
     get_fields($s, 1);
